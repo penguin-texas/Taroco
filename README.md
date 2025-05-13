@@ -4,13 +4,13 @@
 
 This project is part of a course design, aiming to demonstrate the design and implementation of a distributed microservices system based on Spring Cloud. The project documentation, code structure, and technical details were collaboratively completed by team members.
 
-*Author: Zhang Wei*
+
 
 ## Project Introduction
 
 Taroco is a comprehensive microservices system covering user management, system configuration, service governance and other modules. The system adopts modern microservices technologies including Spring Cloud, Axon Framework, and RabbitMQ, featuring excellent modularity, scalability and fault tolerance.
 
-*Author: *
+
 
 ## System Architecture
 
@@ -31,7 +31,7 @@ Taroco
 |    ├── uc-query -- Query side
 ```
 
-*Author: Wang Yu*
+
 
 ## Technology Stack
 
@@ -64,7 +64,7 @@ Taroco
 - Nginx: Reverse proxy server
 - IntelliJ IDEA: Java IDE
 
-*Author: Chen Hao*
+
 
 ## Development Environment
 
@@ -75,5 +75,4 @@ Taroco
 
 MIT License
 
-*Author: Collaborative work by all team members*
 <!--by A赵李观-->
