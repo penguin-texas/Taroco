@@ -119,11 +119,154 @@ logging:
 - 如需扩展功能，可根据项目需求修改或新增模块。
 
 ---
+下面是仿照提供的示例为 taroco-user 项目创建的部署说明：
 
+
+### 2. taroco-user 项目
+
+**组件名称** | **核心功能** | **关键技术**
+---|---|---
+taroco-user | 用户服务模块，提供用户管理、认证授权、权限控制等功能 | Spring Boot、Spring Cloud、MyBatis-Plus
+
+**部署顺序与依赖关系**  
+1. 依赖于 `taroco-root` 父项目提供基础配置
+2. 需连接已部署的数据库服务
+3. 需注册到服务注册中心（如 Eureka 或 Nacos）
+4. 建议配合 API 网关（如 `cloud-api-gateway`）使用
+
+
+### 2. 详细部署方案
+
+#### **1. 基础环境**
+- JDK 8+ 环境
+- Maven 3.5+
+- Git（用于拉取项目代码）
+- 数据库（如 MySQL 5.7+ 或 PostgreSQL）
+
+
+#### **2. 推荐配置**
+- 内存：≥2GB
+- 磁盘：≥10GB 可用空间
+- 网络：需与注册中心、配置中心、数据库互通
+
+
+#### **3. 服务部署**
+
+##### **1. 配置数据库**
+创建数据库并执行初始化脚本（通常位于项目的 `src/main/resources/sql` 目录）：
+```sql
+CREATE DATABASE taroco_user CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+
+##### **2. 用户服务部署 (taroco-user)**
+**配置文件 `application.yml`**：
+```yaml
+server:
+  port: 9001  # 服务端口
+
+spring:
+  application:
+    name: taroco-user  # 应用名称
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/taroco_user?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: your_password
+  cloud:
+    nacos:  # 若使用 Nacos 作为注册中心
+      discovery:
+        server-addr: localhost:8848
+    # 若使用 Eureka 作为注册中心
+    # eureka:
+    #   client:
+    #     service-url:
+    #       defaultZone: http://localhost:8761/eureka/
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: xyz.weechang.taroco.user.entity
+  configuration:
+    map-underscore-to-camel-case: true
+```
+
+**启动命令**：
+```bash
+java -jar taroco-user-0.0.1-SNAPSHOT.jar
+```
+
+
+#### **4. 验证部署成功**
+1. **注册中心验证**  
+   访问注册中心地址（如 Eureka：`http://localhost:8761` 或 Nacos：`http://localhost:8848/nacos`）  
+   预期：在服务列表中看到 `taroco-user` 服务已注册。
+
+2. **用户服务验证**  
+   调用健康检查接口：
+   ```bash
+   curl http://localhost:9001/actuator/health
+   ```
+   预期返回：
+   ```json
+   {"status":"UP"}
+   ```
+
+3. **API 网关验证（若已集成）**  
+   通过网关访问用户服务：
+   ```bash
+   curl http://localhost:8080/user/actuator/health
+   ```
+   预期返回：
+   ```json
+   {"status":"UP"}
+   ```
+
+
+### 3. 常见问题
+
+1. **数据库连接失败**  
+   - 检查数据库地址、用户名、密码是否正确
+   - 确保数据库服务已启动且可访问
+
+2. **服务未注册到注册中心**  
+   - 检查注册中心地址配置是否正确
+   - 确认注册中心服务已正常运行
+
+3. **依赖冲突**  
+   - 使用 `mvn dependency:tree` 查看依赖树，排除冲突依赖
+   - 确保父项目 `taroco-root` 版本兼容
+
+
+### 4. 扩展配置
+
+**开启监控端点**：
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # 暴露所有监控端点
+  endpoint:
+    health:
+      show-details: always  # 显示健康检查详情
+```
+
+**配置日志**：
+```yaml
+logging:
+  level:
+    root: INFO
+    xyz.weechang: DEBUG  # 项目包路径，调整日志级别
+  file:
+    name: logs/taroco-user.log  # 日志文件位置
+```
+
+
+通过以上步骤，可完成 `taroco-user` 服务的独立部署或集成到已有微服务架构中。
 
 
 <!--by lqk -->
-### 2.taroco-cloud项目
+### 3.taroco-cloud项目
 
 组件名称|核心功能|关键技术
 --|:--:|--:
