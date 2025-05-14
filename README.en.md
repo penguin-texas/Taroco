@@ -157,5 +157,108 @@ zuul:
 <!-- by zlg -->
 
 <!-- by zzh -->
-111
+## 3. taroco-common Project
+--
+## 1. Environment Preparation
+
+Before starting the deployment, ensure that the following environments and tools are installed and correctly configured:
+
+### 1.1 Basic Environment
+- **Operating System**: Linux/Unix is recommended (e.g., Ubuntu 20.04 or CentOS 7+)
+- **JDK**: Install JDK 8 or a higher version
+- **Maven**: Ensure that Maven 3.6 or a higher version is installed
+- **Node.js and npm**: If JavaScript is used for the front-end, ensure that Node.js (version 16.x is recommended) and npm (version 8.x is recommended) are installed
+- **Docker**: For containerized deployment (optional)
+- **MySQL**: Database server (version 5.7 or higher is recommended)
+- **Redis**: Caching service (optional)
+
+### 1.2 Network Configuration
+- Ensure that the server can access the external network for downloading dependent packages and images.
+- Configure firewall rules and open necessary ports (e.g., 8080, 3306, 6379).
+
+---
+## 2. Project Structure
+
+This project adopts a microservices architecture based on Domain-Driven Design (DDD). The following is a brief introduction to the main modules:
+- **User Center**: Provides unified user management, authorization, and authentication services.
+- **Configuration Center**: Manages service configuration files.
+- **Registry Center**: Provides service discovery and registration functions.
+- **Service Routing**: Manages routing between services.
+- **Service Governance**: Includes functions such as circuit breaking and gray release.
+- **Tracing Module**: Provides distributed link tracing functions.
+
+---
+## 3. Deployment Steps
+
+### 3.1 Download the Code
+```bash
+# Clone the code repository
+git clone https://github.com/tfj-bot/Taroco.git
+cd Taroco
+```
+
+---
+### 3.2 Configure the Back-end Service
+
+#### 3.2.1 Database Initialization
+1. Create a MySQL database:
+    ```sql
+    CREATE DATABASE taroco CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+    ```
+2. Import the initial SQL script:
+    ```bash
+    mysql -u root -p taroco < scripts/init-database.sql
+    ```
+
+#### 3.2.2 Modify the Configuration File
+- Locate the `application.yml` or `application.properties` file and update the following configuration items:
+    ```yaml
+    spring:
+      datasource:
+        url: jdbc:mysql://<Database Address>:3306/taroco?useUnicode=true&characterEncoding=utf8&useSSL=false
+        username: <Database Username>
+        password: <Database Password>
+      redis:
+        host: <Redis Address>
+        port: 6379
+    ```
+
+#### 3.2.3 Build the Back-end Service
+```bash
+# Build using Maven
+mvn clean package -DskipTests
+```
+- After the build is complete, the executable `jar` files of all services will be stored in the `target/` directory.
+
+---
+### 3.3 Configure the Front-end Service
+
+If the project includes a front-end module:
+1. Switch to the front-end directory, such as `web/` or `frontend/`.
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+3. Build the front-end code:
+    ```bash
+    npm run build
+    ```
+4. The built static files are usually located in the `dist/` or `build/` directory.
+
+---
+### 3.4 Start the Service
+
+#### 3.4.1 Standalone Start
+You can directly run the `jar` file to start the service:
+```bash
+java -jar target/{module-name}.jar
+```
+
+#### 3.4.2 Deployment Using Docker
+1. Ensure that Docker and Docker Compose are installed.
+2. Modify the `docker-compose.yml` file and update the relevant configurations.
+3. Start the service:
+    ```bash
+    docker-compose up -d
+    ``` 
 
