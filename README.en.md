@@ -296,10 +296,10 @@ java -jar target/{module-name}.jar
 
 ---
 
-<!-- by tfj -->
 
 
-<!-- by wzy -->
+
+
 ### 4. taroco-user Project
 ---
 **Component Name** | **Core Function** | **Key Technologies**
