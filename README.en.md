@@ -260,5 +260,219 @@ java -jar target/{module-name}.jar
 3. Start the service:
     ```bash
     docker-compose up -d
-    ``` 
+    ```
 
+### 3.5 Verify the Service
+1. Check if the service is running properly:
+    ```bash
+    curl http://localhost:8080/actuator/health
+    ```
+    A return value of `{"status":"UP"}` indicates that the service is functioning correctly.
+2. Access the front-end page:
+    - If the front-end service is deployed, open a browser and visit `http://<Server IP>:<Front-end Port>`.
+
+---
+
+## 4. Troubleshooting Common Issues
+
+### 4.1 Database Connection Failure
+- Confirm whether the MySQL service is running.
+- Check if the database address, port, username, and password are correct.
+
+### 4.2 Service Startup Failure
+- Check the error messages in the logs within the `logs/` folder.
+- Ensure that all dependent services (such as Redis and MySQL) are running.
+
+### 4.3 Inability to Access the Front-end Page
+- Ensure that the front-end build was successful.
+- Confirm that the API address configurations of the front-end and back-end are consistent.
+
+---
+
+## 5. Additional Content
+
+- **Extended Modules**: Storage systems, WeChat systems, etc., can be added later based on requirements.
+- **Performance Optimization**: Configure load balancing and caching strategies to improve system response speed.
+
+---
+
+<!-- by tfj -->
+
+
+<!-- by wzy -->
+### 4. taroco-user Project
+---
+**Component Name** | **Core Function** | **Key Technologies**
+---|---|---
+taroco-user | User service module that provides functions such as user management, authentication and authorization, and permission control | Spring Boot, Spring Cloud, MyBatis-Plus
+
+**Deployment Sequence and Dependencies**  
+1. Depends on the taroco-root parent project for basic configurations.
+2. Needs to connect to an already deployed database service.
+3. Needs to register with a service registry (such as Eureka or Nacos).
+4. It is recommended to use in conjunction with an API gateway (such as cloud-api-gateway).
+
+
+### 2. Detailed Deployment Plan
+
+#### **1. Basic Environment**
+- JDK 8+ environment
+- Maven 3.5+
+- Git (for pulling project code)
+- Database (such as MySQL 5.7+ or PostgreSQL)
+
+
+#### **2. Recommended Configuration**
+- Memory: ≥2GB
+- Disk: ≥10GB of available space
+- Network: Must be able to communicate with the registry, configuration center, and database
+
+
+#### **3. Service Deployment**
+
+##### **1. Configure the Database**
+Create a database and execute the initialization script (usually located in the src/main/resources/sql directory of the project):
+```sql
+CREATE DATABASE taroco_user CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+
+##### **2. Deploy the User Service (taroco-user)**
+**Configuration File application.yml**:
+```yaml
+server:
+  port: 9001  # Service port
+
+spring:
+  application:
+    name: taroco-user  # Application name
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/taroco_user?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: your_password
+  cloud:
+    nacos:  # If using Nacos as the registry
+      discovery:
+        server-addr: localhost:8848
+    # If using Eureka as the registry
+    # eureka:
+    #   client:
+    #     service-url:
+    #       defaultZone: http://localhost:8761/eureka/
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: xyz.weechang.taroco.user.entity
+  configuration:
+    map-underscore-to-camel-case: true
+```
+
+**Startup Command**:
+```bash
+java -jar taroco-user-0.0.1-SNAPSHOT.jar
+```
+
+
+#### **4. Verify Successful Deployment**
+1. **Verify the Registry**  
+   Access the registry address (such as Eureka: http://localhost:8761 or Nacos: http://localhost:8848/nacos)  
+   Expectation: The taroco-user service should be listed as registered.
+
+2. **Verify the User Service**  
+   Invoke the health check interface:
+   ```bash
+   curl http://localhost:9001/actuator/health
+   ```
+   Expected return:
+   ```json
+   {"status":"UP"}
+   ```
+
+3. **Verify the API Gateway (if integrated)**  
+   Access the user service through the gateway:
+   ```bash
+   curl http://localhost:8080/user/actuator/health
+   ```
+   Expected return:
+   ```json
+   {"status":"UP"}
+   ```
+
+
+### 3. Common Issues
+
+1. **Database Connection Failure**  
+   - Check if the database address, username, and password are correct.
+   - Ensure that the database service is running and accessible.
+
+2. **Service Not Registered with the Registry**  
+   - Check if the registry address configuration is correct.
+   - Confirm that the registry service is running properly.
+
+3. **Dependency Conflicts**  
+   - Use `mvn dependency:tree` to view the dependency tree and exclude conflicting dependencies.
+   - Ensure that the version of the parent project taroco-root is compatible.
+
+
+### 4. Extended Configuration
+
+**Enable Monitoring Endpoints**:
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Expose all monitoring endpoints
+  endpoint:
+    health:
+      show-details: always  # Show detailed health check information
+```
+
+**Configure Logging**:
+```yaml
+logging:
+  level:
+    root: INFO
+    xyz.weechang: DEBUG  # Project package path, adjust the logging level
+  file:
+    name: logs/taroco-user.log  # Log file location
+```
+
+
+### Technology Stack
+
+#### Back-end Technologies:
+Technology | Name | Official Website
+----|------|----
+Spring Boot | Container | [http://projects.spring.io/spring-boot/](http://projects.spring.io/spring-boot/)
+Spring Cloud | Container | [http://projects.spring.io/spring-cloud/](http://projects.spring.io/spring-cloud/)
+Axon | Container | [http://www.axonframework.org/](http://www.axonframework.org/)
+Rabbit MQ | Container | [http://www.rabbitmq.com/](http://www.rabbitmq.com/)
+Spring Data | Container | [http://projects.spring.io/spring-data/](http://projects.spring.io/spring-data/)
+Swagger2 | Interface Testing Framework | [http://swagger.io/](http://swagger.io/)
+Jenkins | Continuous Integration Tool | [https://jenkins.io/index.html](https://jenkins.io/index.html)
+Maven | Project Build Management | [http://maven.apache.org/](http://maven.apache.org/)
+
+#### Front-end Technologies:
+Technology | Name | Official Website
+----|------|----
+VUE | Library | [https://cn.vuejs.org/](https://cn.vuejs.org/)
+vue-router 2 | VUE Router | [https://router.vuejs.org/zh-cn/](https://router.vuejs.org/zh-cn/)
+iview | VUE Components | [https://www.iviewui.com](https://www.iviewui.com)
+
+#### Development Tools:
+- MongoDB: Database
+- Tomcat: Application Server
+- Git: Version Control
+- Nginx: Reverse Proxy Server
+- IntelliJ IDEA: Development IDE
+
+#### Development Environment:
+- JDK8+
+- MongoDB
+
+## License
+
+[MIT](LICENSE "MIT")
+<!-- by zzh -->
